@@ -1,6 +1,6 @@
 ﻿# Сartoons
 
-This program is designed to download comics [Randel Munro](https://xkcd.com) and their subsequent publication in the social network Vkontakte. 
+This program is designed to download comics [Randall Munroe](https://xkcd.com) and their subsequent publication in the social network Vkontakte. 
 
 ### How to setup
 
