@@ -42,10 +42,9 @@ if __name__ == "__main__":
 
     comics_response = get_json_stuff(comics_url, params=None)
 
-    description, title, image_url =
-    comics_response["alt"],
-    comics_response["title"],
-    comics_response["img"]
+    description = comics_response["alt"]
+    title = comics_response["title"]
+    image_url = comics_response["img"]
 
     download_image(image_url, file_name)
 
