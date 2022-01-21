@@ -13,10 +13,12 @@ def download_image(url, file_name, params=None):
         file.write(response.content)
 
 
-def get_json_stuff(url, params):
-    response = requests.get(url, params)
+def get_number_file(url):
+    response = requests.get(url, params=None)
     response.raise_for_status()
-    return response.json()
+    min_number_file = 1
+    max_number_file = response.json()["num"]
+    return randint(min_number_file, max_number_file)
 
 
 if __name__ == "__main__":
@@ -27,10 +29,10 @@ if __name__ == "__main__":
     vk_access_token = os.getenv("VK_ACCESS_TOKEN")
     group_id = os.getenv("GROUP_ID")
 
+    
+    current_comics_url = "https://xkcd.com/info.0.json"
     file_name = "comics.jpg"
-    min_number_file = 1
-    max_number_file = 2564
-    number_loaded_file = randint(min_number_file, max_number_file)
+    number_loading_file = get_number_file(current_comics_url)
 
     comics_url = "https://xkcd.com/{}/info.0.json".format(number_loaded_file)
     vk_endpoint_template = "https://api.vk.com/method/{}"
@@ -40,18 +42,21 @@ if __name__ == "__main__":
         "group_id": group_id
     }
 
-    comics_response = get_json_stuff(comics_url, params=None)
+    comics_response = requests.get(comics_url, params=None)
+    comics_response.raise_for_status()
+    json_comics_response = comics_response.json()
 
-    description = comics_response["alt"]
-    title = comics_response["title"]
-    image_url = comics_response["img"]
+    description = json_comics_response["alt"]
+    title = json_comics_response["title"]
+    image_url = json_comics_response["img"]
 
     download_image(image_url, file_name)
 
-    for_upload_response = get_json_stuff(
+    for_upload_response = requests.get(
         vk_endpoint_template.format("photos.getWallUploadServer"),
         vk_params)
-    upload_url = for_upload_response["response"]["upload_url"]
+    for_upload_response.raise_for_status()
+    upload_url = for_upload_response.json()["response"]["upload_url"]
 
     with open(file_name, 'rb') as file:
         files = {"photo": file}
