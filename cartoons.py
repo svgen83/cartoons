@@ -33,7 +33,8 @@ def handle_vk_response(response):
         os._exit(0)
 
 
-def get_vk_upload_urL(vk_endpoint_template, vk_params):
+def get_vk_upload_urL(vk_params):
+    vk_endpoint_template = "https://api.vk.com/method/{}"
     response = requests.get(
         vk_endpoint_template.format("photos.getWallUploadServer"),
         vk_params)
@@ -53,12 +54,13 @@ def upload_file(vk_upload_url, vk_params, file_name):
 
 
 def get_issue_params(vk_access_token, group_id, save_params, json_comics_response):
+    vk_endpoint_template = "https://api.vk.com/method/{}"
     savewall_response = requests.post(
         vk_endpoint_template.format("photos.saveWallPhoto"),
         params=save_params)
     savewall_stuff = handle_vk_response(savewall_response)
-    owner_id = str(savewall_stuff["response"][0]["owner_id"])
-    media_id = str(savewall_stuff["response"][0]["id"])
+    owner_id = savewall_stuff["response"][0]["owner_id"]
+    media_id = savewall_stuff["response"][0]["id"]
     description = json_comics_response["alt"]
     title = json_comics_response["title"]
     return {
@@ -68,6 +70,12 @@ def get_issue_params(vk_access_token, group_id, save_params, json_comics_respons
         "from_group": "1",
         "attachments": f"photo{owner_id}_{media_id}",
         "message": dedent(f"{title}\n{description}")}
+        
+        
+def issue_comics(issue_params):
+    vk_endpoint_template = "https://api.vk.com/method/{}"
+    issue_response = requests.post(vk_endpoint_template.format("wall.post"), params=issue_params)
+    handle_vk_response(issue_response)
 
 
 if __name__ == "__main__":
@@ -81,7 +89,6 @@ if __name__ == "__main__":
     file_name = "comics.jpg"
 
     number_loading_file = get_number_file(current_comics_url)
-    vk_endpoint_template = "https://api.vk.com/method/{}"
     vk_params = {
         'access_token': vk_access_token,
         'v': "5.131",
@@ -97,12 +104,11 @@ if __name__ == "__main__":
 
     download_image(image_url, file_name)
 
-    vk_upload_url = get_vk_upload_urL(vk_endpoint_template, vk_params)
+    vk_upload_url = get_vk_upload_urL(vk_params)
     save_params = upload_file(vk_upload_url, vk_params, file_name)
 
     issue_params = get_issue_params(vk_access_token, group_id, save_params, json_comics_response)
 
-    issue_response = requests.post(vk_endpoint_template.format("wall.post"), params=issue_params)
-    handle_vk_response(issue_response)
-
+    issue_comics(issue_params)
+    
     os.remove(file_name)
