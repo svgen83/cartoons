@@ -54,7 +54,7 @@ def upload_file(vk_upload_url, vk_params, file_name):
 
 def get_issue_params(vk_access_token, group_id, save_params, json_comics_response):
     savewall_response = requests.post(
-        vk_endpoint_template.format("photos.savewallPhoto"),
+        vk_endpoint_template.format("photos.saveWallPhoto"),
         params=save_params)
     savewall_stuff = handle_vk_response(savewall_response)
     owner_id = str(savewall_stuff["response"][0]["owner_id"])
@@ -67,9 +67,7 @@ def get_issue_params(vk_access_token, group_id, save_params, json_comics_respons
         "owner_id": f"-{group_id}",
         "from_group": "1",
         "attachments": f"photo{owner_id}_{media_id}",
-        "message": dedent(f"""{title}
-                        {description}""")
-    }
+        "message": dedent(f"{title}\n{description}")}
 
 
 if __name__ == "__main__":
