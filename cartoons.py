@@ -6,8 +6,9 @@ from random import randint
 from textwrap import dedent
 
 
-def download_image(url, file_name, params=None):
-    response = requests.get(url, params)
+def download_image(json_comics_response, file_name, params=None):
+    image_url = json_comics_response["img"]
+    response = requests.get(image_url, params)
     response.raise_for_status()
     with open(file_name, "wb") as file:
         file.write(response.content)
@@ -19,6 +20,13 @@ def get_number_file(url):
     min_number_file = 1
     max_number_file = response.json()["num"]
     return randint(min_number_file, max_number_file)
+
+
+def get_json_comics_response(number_loading_file):
+    comics_url = "https://xkcd.com/{}/info.0.json".format(number_loading_file)
+    comics_response = requests.get(comics_url, params=None)
+    comics_response.raise_for_status()
+    return comics_response.json()
 
 
 def handle_vk_response(response):
@@ -96,14 +104,10 @@ if __name__ == "__main__":
         "group_id": group_id
     }
 
-    comics_url = "https://xkcd.com/{}/info.0.json".format(number_loading_file)
 
-    comics_response = requests.get(comics_url, params=None)
-    comics_response.raise_for_status()
-    json_comics_response = comics_response.json()
-    image_url = json_comics_response["img"]
-
-    download_image(image_url, file_name)
+    json_comics_response = get_json_comics_response(number_loading_file)
+    
+    download_image(json_comics_response, file_name)
 
     vk_upload_url = get_vk_upload_urL(vk_params)
     save_params = upload_file(vk_upload_url, vk_params, file_name)
