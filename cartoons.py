@@ -24,12 +24,13 @@ def get_number_file(url):
 def handle_vk_response(response):
     try:
         response.raise_for_status()
-        if 'error' in response.json():
+        json_stuff = response.json()
+        if 'error' in json_stuff:
             raise requests.HTTPError
-        return response.json()
+        return json_stuff
     except requests.HTTPError:
-        print("error code:", response.json()['error']['error_code'])
-        print(response.json()['error']['error_msg'])
+        print("error code:", json_stuff['error']['error_code'])
+        print(json_stuff['error']['error_msg'])
         os._exit(0)
 
 
