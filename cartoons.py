@@ -30,16 +30,11 @@ def get_json_comics_response(number_loading_file):
 
 
 def handle_vk_response(response):
-    try:
-        response.raise_for_status()
-        json_stuff = response.json()
-        if 'error' in json_stuff:
-            raise requests.HTTPError
-        return json_stuff
-    except requests.HTTPError:
-        print("error code:", json_stuff['error']['error_code'])
-        print(json_stuff['error']['error_msg'])
-        os._exit(0)
+    response.raise_for_status()
+    json_stuff = response.json()
+    if 'error' in json_stuff:
+    raise requests.HTTPError
+    return json_stuff
 
 
 def get_vk_upload_urL(vk_params):
@@ -81,10 +76,10 @@ def get_issue_params(vk_access_token, group_id, save_params, json_comics_respons
         "message": dedent(f"{title}\n{description}")}
         
         
-def issue_comics(issue_params):
+def publishing_comics(publishing_params):
     vk_endpoint_template = "https://api.vk.com/method/{}"
-    issue_response = requests.post(vk_endpoint_template.format("wall.post"), params=issue_params)
-    handle_vk_response(issue_response)
+    publishing_response = requests.post(vk_endpoint_template.format("wall.post"), params=issue_params)
+    handle_vk_response(publishing_response)
 
 
 if __name__ == "__main__":
@@ -94,26 +89,26 @@ if __name__ == "__main__":
     client_id = os.getenv("CLIENT_ID")
     vk_access_token = os.getenv("VK_ACCESS_TOKEN")
     group_id = os.getenv("GROUP_ID")
-    current_comics_url = "https://xkcd.com/info.0.json"
+
     file_name = "comics.jpg"
 
-    number_loading_file = get_number_file(current_comics_url)
     vk_params = {
         'access_token': vk_access_token,
         'v': "5.131",
         "group_id": group_id
     }
 
-
+    number_loading_file = get_number_file(current_comics_url) 
     json_comics_response = get_json_comics_response(number_loading_file)
-    
     download_image(json_comics_response, file_name)
 
-    vk_upload_url = get_vk_upload_urL(vk_params)
-    save_params = upload_file(vk_upload_url, vk_params, file_name)
-
-    issue_params = get_issue_params(vk_access_token, group_id, save_params, json_comics_response)
-
-    issue_comics(issue_params)
-    
-    os.remove(file_name)
+    try:
+        vk_upload_url = get_vk_upload_urL(vk_params)
+        save_params = upload_file(vk_upload_url, vk_params, file_name)
+        publishing_params = get_issue_params(vk_access_token, group_id, save_params, json_comics_response)
+        publishing_comics(issue_params)
+    except requests.HTTPError:
+        print("error code:", json_stuff['error']['error_code'])
+        print(json_stuff['error']['error_msg'])
+    finally:
+        os.remove(file_name)
