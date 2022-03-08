@@ -60,7 +60,7 @@ def upload_file(vk_upload_url, vk_params, file_name):
     return save_params
 
 
-def get_issue_params(vk_access_token, group_id, save_params, json_comics_response):
+def get_publishing_params(vk_access_token, group_id, save_params, json_comics_response):
     vk_endpoint_template = "https://api.vk.com/method/{}"
     response = requests.post(
         vk_endpoint_template.format("photos.saveWallPhoto"),
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     try:
         vk_upload_url = get_vk_upload_urL(vk_params)
         save_params = upload_file(vk_upload_url, vk_params, file_name)
-        publishing_params = get_issue_params(vk_access_token, group_id, save_params, json_comics_response)
+        publishing_params = get_publishing_params(vk_access_token, group_id, save_params, json_comics_response)
         publishing_comics(publishing_params)
     except requests.HTTPError:
         pass
