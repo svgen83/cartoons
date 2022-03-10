@@ -34,8 +34,8 @@ def handle_vk_response(response):
     response.raise_for_status()
     response_stuff = response.json()
     if "error" in response_stuff:
-        error_msg = dedent(f"""error code:{response_stuff["error"]["error_code"]}.
-                    {response_stuff["error"]["error_msg"]}""")
+        error_msg = dedent(f"""error code:{response_stuff["error"]
+["error_code"]}.\n{response_stuff["error"]["error_msg"]}""")
         print(error_msg)
         raise requests.HTTPError
     return response_stuff
@@ -71,10 +71,10 @@ def get_publishing_params(vk_access_token, group_id, save_params, comics_respons
     return {
             "access_token": vk_access_token,
             "v": "5.131",
-		    "owner_id": f"-{group_id}",
-		    "from_group": "1",
-		    "attachments": f"photo{owner_id}_{media_id}",
-		    "message": dedent(f"{title}\n{description}")}
+            "owner_id": f"-{group_id}",
+	    "from_group": "1",
+	    "attachments": f"photo{owner_id}_{media_id}",
+	    "message": dedent(f"{title}\n{description}")}
         
         
 def publish_comics(publishing_params):
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     }
 
     number_loading_file = get_number() 
-    comics_response_stuff = get_json_comics_response(number_loading_file)
+    comics_response_stuff = get_comics_response_stuff(number_loading_file)
     download_image(comics_response_stuff, file_name)
 
     try:
