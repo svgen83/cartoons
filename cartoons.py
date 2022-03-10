@@ -6,23 +6,23 @@ from random import randint
 from textwrap import dedent
 
 
-def download_image(json_comics_response, file_name, params=None):
-    image_url = json_comics_response["img"]
+def download_image(image_response, file_name, params=None):
+    image_url = image_response["img"]
     response = requests.get(image_url, params)
     response.raise_for_status()
     with open(file_name, "wb") as file:
         file.write(response.content)
 
 
-def get_number_file(url):
+def get_number(url):
     response = requests.get(url, params=None)
     response.raise_for_status()
-    min_number_file = 1
-    max_number_file = response.json()["num"]
-    return randint(min_number_file, max_number_file)
+    min_number = 1
+    max_number = response.json()["num"]
+    return randint(min_number, max_number)
 
 
-def get_json_comics_response(number_loading_file):
+def get_comics_response_stuff(number_loading_file):
     comics_url = "https://xkcd.com/{}/info.0.json".format(number_loading_file)
     comics_response = requests.get(comics_url, params=None)
     comics_response.raise_for_status()
@@ -31,13 +31,13 @@ def get_json_comics_response(number_loading_file):
 
 def handle_vk_response(response):
     response.raise_for_status()
-    json_stuff = response.json()
-    if "error" in json_stuff:
-        error_msg = dedent(f"""error code:{json_stuff["error"]["error_code"]}.
-                    {json_stuff["error"]["error_msg"]}""")
+    response_stuff = response.json()
+    if "error" in response_stuff:
+        error_msg = dedent(f"""error code:{response_stuff["error"]["error_code"]}.
+                    {response_stuff["error"]["error_msg"]}""")
         print(error_msg)
         raise requests.HTTPError
-    return json_stuff
+    return response_stuff
 
 
 def get_vk_upload_urL(vk_params):
@@ -45,8 +45,8 @@ def get_vk_upload_urL(vk_params):
     response = requests.get(
         vk_endpoint_template.format("photos.getWallUploadServer"),
         vk_params)
-    json_stuff = handle_vk_response(response)
-    return json_stuff["response"]["upload_url"]
+    response_stuff = handle_vk_response(response)
+    return response_stuff["response"]["upload_url"]
 
 
 def upload_file(vk_upload_url, vk_params, file_name):
@@ -60,17 +60,15 @@ def upload_file(vk_upload_url, vk_params, file_name):
     return save_params
 
 
-def get_publishing_params(vk_access_token, group_id, save_params, json_comics_response):
-    vk_endpoint_template = "https://api.vk.com/method/{}"
-    response = requests.post(
-        vk_endpoint_template.format("photos.saveWallPhoto"),
-        params=save_params)
+def get_publishing_params(vk_access_token, group_id, save_params, comics_response_stuff):
+    vk_endpoint = "https://api.vk.com/method/photos.saveWallPhoto"
+    response = requests.post(vk_endpoint, params=save_params)
     response.raise_for_status()
-    json_stuff = handle_vk_response(response)
-    owner_id = json_stuff["response"][0]["owner_id"]
-    media_id = json_stuff["response"][0]["id"]
-    description = json_comics_response["alt"]
-    title = json_comics_response["title"]
+    response_stuff = handle_vk_response(response)
+    owner_id = response_stuff["response"][0]["owner_id"]
+    media_id = response_stuff["response"][0]["id"]
+    description = comics_response_stuff["alt"]
+    title = comics_response_stuff["title"]
     return {
             "access_token": vk_access_token,
             "v": "5.131",
@@ -80,11 +78,11 @@ def get_publishing_params(vk_access_token, group_id, save_params, json_comics_re
 		    "message": dedent(f"{title}\n{description}")}
         
         
-def publishing_comics(publishing_params):
+def publish_comics(publishing_params):
     vk_endpoint_template = "https://api.vk.com/method/{}"
     response = requests.post(vk_endpoint_template.format("wall.post"), params=publishing_params)
     response.raise_for_status()
-    json_stuff = handle_vk_response(response)
+    response_stuff = handle_vk_response(response)
 
 
 if __name__ == "__main__":
@@ -104,15 +102,15 @@ if __name__ == "__main__":
         "group_id": group_id
     }
 
-    number_loading_file = get_number_file(current_comics_url) 
-    json_comics_response = get_json_comics_response(number_loading_file)
-    download_image(json_comics_response, file_name)
+    number_loading_file = get_number(current_comics_url) 
+    comics_response_stuff = get_json_comics_response(number_loading_file)
+    download_image(comics_response_stuff, file_name)
 
     try:
         vk_upload_url = get_vk_upload_urL(vk_params)
         save_params = upload_file(vk_upload_url, vk_params, file_name)
-        publishing_params = get_publishing_params(vk_access_token, group_id, save_params, json_comics_response)
-        publishing_comics(publishing_params)
+        publishing_params = get_publishing_params(vk_access_token, group_id, save_params, comics_response_stuff)
+        publish_comics(publishing_params)
     except requests.HTTPError:
         pass
     finally:
