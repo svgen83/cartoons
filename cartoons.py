@@ -42,10 +42,8 @@ def handle_vk_response(response):
 
 
 def get_vk_upload_urL(vk_params):
-    vk_endpoint_template = "https://api.vk.com/method/{}"
-    response = requests.get(
-        vk_endpoint_template.format("photos.getWallUploadServer"),
-        vk_params)
+    vk_endpoint = "https://api.vk.com/method/photos.getWallUploadServer"
+    response = requests.get(vk_endpoint, vk_params)
     response_stuff = handle_vk_response(response)
     return response_stuff["response"]["upload_url"]
 
@@ -80,8 +78,8 @@ def get_publishing_params(vk_access_token, group_id, save_params, comics_respons
         
         
 def publish_comics(publishing_params):
-    vk_endpoint_template = "https://api.vk.com/method/{}"
-    response = requests.post(vk_endpoint_template.format("wall.post"), params=publishing_params)
+    vk_endpoint = "https://api.vk.com/method/wall.post"
+    response = requests.post(vk_endpoint, params=publishing_params)
     response.raise_for_status()
     response_stuff = handle_vk_response(response)
 
