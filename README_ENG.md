@@ -21,13 +21,12 @@ Then get the application access key using the [Implicit Flow procedure](https://
 
 ### Program settings
 
-In order for the program to work correctly, create an .env file in the program folder containing `client_id`, `group_id` and the application access key.
+In order for the program to work correctly, create an .env file in the program folder containing `group_id` and the application access key.
 Write its contents like this:
 
 ```
-CLIENT_ID="client_id приложения Вконтакте"
-GROUP_ID="group_id группы Вконтакте"
-VK_ACCESS_TOKEN="номер ключа доступа приложения"
+GROUP_ID="group_id of the Vkontakte group"
+VK_ACCESS_TOKEN="application access key number"
 ```
 
 ### How to run
