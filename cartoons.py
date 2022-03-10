@@ -12,7 +12,7 @@ def download_image(image_response, file_name, params=None):
     response = requests.get(image_url, params)
     response.raise_for_status()
     with open(file_name, "wb") as file:
-        file.write(response.content)
+    file.write(response.content)
 
 
 def get_number():
@@ -60,7 +60,8 @@ def upload_file(vk_upload_url, vk_params, file_name):
     return save_params
 
 
-def get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params, comics_response_stuff):
+def get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params,
+			  comics_response_stuff):
     vk_endpoint = "https://api.vk.com/method/photos.saveWallPhoto"
     response = requests.post(vk_endpoint, params=save_params)
     response.raise_for_status()
@@ -72,25 +73,25 @@ def get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params, comics_respons
     return {
             "access_token": VK_ACCESS_TOKEN,
             "v": "5.131",
-            "owner_id": f"-{GROUP_ID}",
+	    "owner_id": f"-{GROUP_ID}",
 	    "from_group": "1",
 	    "attachments": f"photo{owner_id}_{media_id}",
 	    "message": dedent(f"{title}\n{description}")}
-        
-        
+
+
 def publish_comics(publishing_params):
     vk_endpoint = "https://api.vk.com/method/wall.post"
     response = requests.post(vk_endpoint, params=publishing_params)
     response.raise_for_status()
     response_stuff = handle_vk_response(response)
-	
+
 
 def main():
     load_dotenv()
 
     VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
     GROUP_ID = os.getenv("GROUP_ID")
-    
+
     file_name = "comics.jpg"
 
     vk_params = {
@@ -99,7 +100,7 @@ def main():
         "group_id": GROUP_ID
     }
 
-    number_loading_file = get_number() 
+    number_loading_file = get_number()
     comics_response_stuff = get_comics_response_stuff(number_loading_file)
     download_image(comics_response_stuff, file_name)
 
