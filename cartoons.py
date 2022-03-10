@@ -83,22 +83,21 @@ def publish_comics(publishing_params):
     response = requests.post(vk_endpoint, params=publishing_params)
     response.raise_for_status()
     response_stuff = handle_vk_response(response)
+	
 
-
-if __name__ == "__main__":
-
+def main():
     load_dotenv()
 
-    client_id = os.getenv("CLIENT_ID")
-    vk_access_token = os.getenv("VK_ACCESS_TOKEN")
-    group_id = os.getenv("GROUP_ID")
+    CLIENT_ID = os.getenv("CLIENT_ID")
+    VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
+    GROUP_ID = os.getenv("GROUP_ID")
     
     file_name = "comics.jpg"
 
     vk_params = {
-        "access_token": vk_access_token,
+        "access_token": VK_ACCESS_TOKEN,
         "v": "5.131",
-        "group_id": group_id
+        "group_id": GROUP_ID
     }
 
     number_loading_file = get_number() 
@@ -114,3 +113,8 @@ if __name__ == "__main__":
         pass
     finally:
         os.remove(file_name)
+
+
+if __name__ == "__main__":
+    main()
+    
