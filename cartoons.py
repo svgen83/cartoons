@@ -14,7 +14,8 @@ def download_image(image_response, file_name, params=None):
         file.write(response.content)
 
 
-def get_number(url):
+def get_number():
+    url = "https://xkcd.com/info.0.json"
     response = requests.get(url, params=None)
     response.raise_for_status()
     min_number = 1
@@ -93,7 +94,6 @@ if __name__ == "__main__":
     vk_access_token = os.getenv("VK_ACCESS_TOKEN")
     group_id = os.getenv("GROUP_ID")
     
-    current_comics_url = "https://xkcd.com/info.0.json"
     file_name = "comics.jpg"
 
     vk_params = {
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         "group_id": group_id
     }
 
-    number_loading_file = get_number(current_comics_url) 
+    number_loading_file = get_number() 
     comics_response_stuff = get_json_comics_response(number_loading_file)
     download_image(comics_response_stuff, file_name)
 
