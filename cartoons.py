@@ -60,7 +60,7 @@ def upload_file(vk_upload_url, vk_params, file_name):
     return save_params
 
 
-def get_publishing_params(vk_access_token, group_id, save_params, comics_response_stuff):
+def get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params, comics_response_stuff):
     vk_endpoint = "https://api.vk.com/method/photos.saveWallPhoto"
     response = requests.post(vk_endpoint, params=save_params)
     response.raise_for_status()
@@ -70,9 +70,9 @@ def get_publishing_params(vk_access_token, group_id, save_params, comics_respons
     description = comics_response_stuff["alt"]
     title = comics_response_stuff["title"]
     return {
-            "access_token": vk_access_token,
+            "access_token": VK_ACCESS_TOKEN,
             "v": "5.131",
-            "owner_id": f"-{group_id}",
+            "owner_id": f"-{GROUP_ID}",
 	    "from_group": "1",
 	    "attachments": f"photo{owner_id}_{media_id}",
 	    "message": dedent(f"{title}\n{description}")}
@@ -88,7 +88,6 @@ def publish_comics(publishing_params):
 def main():
     load_dotenv()
 
-    CLIENT_ID = os.getenv("CLIENT_ID")
     VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
     GROUP_ID = os.getenv("GROUP_ID")
     
@@ -107,7 +106,7 @@ def main():
     try:
         vk_upload_url = get_vk_upload_urL(vk_params)
         save_params = upload_file(vk_upload_url, vk_params, file_name)
-        publishing_params = get_publishing_params(vk_access_token, group_id, save_params, comics_response_stuff)
+        publishing_params = get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params, comics_response_stuff)
         publish_comics(publishing_params)
     except requests.HTTPError:
         pass
@@ -117,4 +116,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
