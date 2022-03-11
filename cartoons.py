@@ -36,8 +36,7 @@ def handle_vk_response(response):
     if "error" in response_stuff:
 	error_msg = dedent(f"""\
 	error code:{response_stuff["error"]["error_code"]}.
-	{response_stuff["error"]["error_msg"]}
-	""")
+	{response_stuff["error"]["error_msg"]}""")
 	logging.error(error_msg)
 	raise requests.HTTPError
     return response_stuff
@@ -107,8 +106,11 @@ def main():
 
     try:
         vk_upload_url = get_vk_upload_urL(VK_PARAMS)
-        savewall_method_params = upload_file(vk_upload_url, VK_PARAMS, FILE_NAME)
-        publishing_params = get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, savewall_method_params, comics_response_stuff)
+        savewall_method_params = upload_file(vk_upload_url, VK_PARAMS,
+					     FILE_NAME)
+        publishing_params = get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID,
+						  savewall_method_params,
+						  comics_response_stuff)
         publish_comics(publishing_params)
     except requests.HTTPError:
         pass
