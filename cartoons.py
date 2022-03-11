@@ -7,15 +7,14 @@ from random import randint
 from textwrap import dedent
 
 
-def download_image(image_response, file_name, params=None):
-    image_url = image_response["img"]
-    response = requests.get(image_url, params)
+def download_image(url, file_name, params=None):
+    response = requests.get(url, params)
     response.raise_for_status()
     with open(file_name, "wb") as file:
-    file.write(response.content)
+        file.write(response.content)
 
 
-def get_number():
+def get_random_comics_number():
     url = "https://xkcd.com/info.0.json"
     response = requests.get(url, params=None)
     response.raise_for_status()
@@ -25,10 +24,10 @@ def get_number():
 
 
 def get_comics_response_stuff(number_loading_file):
-    comics_url = "https://xkcd.com/{}/info.0.json".format(number_loading_file)
-    comics_response = requests.get(comics_url, params=None)
-    comics_response.raise_for_status()
-    return comics_response.json()
+    url = "https://xkcd.com/{}/info.0.json".format(number_loading_file)
+    response = requests.get(url, params=None)
+    response.raise_for_status()
+    return response.json()
 
 
 def handle_vk_response(response):
@@ -55,15 +54,15 @@ def upload_file(vk_upload_url, vk_params, file_name):
         response = requests.post(vk_upload_url,
                                  files=files,
                                  params=vk_params)
-    save_params = handle_vk_response(response)
-    save_params.update(vk_params)
-    return save_params
+    savewall_method_params = handle_vk_response(response)
+    savewall_method_params.update(vk_params)
+    return savewall_method_params
 
 
-def get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params,
+def get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, savewall_method_params,
 			  comics_response_stuff):
     vk_endpoint = "https://api.vk.com/method/photos.saveWallPhoto"
-    response = requests.post(vk_endpoint, params=save_params)
+    response = requests.post(vk_endpoint, params=savewall_method_params)
     response.raise_for_status()
     response_stuff = handle_vk_response(response)
     owner_id = response_stuff["response"][0]["owner_id"]
@@ -92,27 +91,27 @@ def main():
     VK_ACCESS_TOKEN = os.getenv("VK_ACCESS_TOKEN")
     GROUP_ID = os.getenv("GROUP_ID")
 
-    file_name = "comics.jpg"
+    FILE_NAME = "comics.jpg"
 
-    vk_params = {
+    VK_PARAMS = {
         "access_token": VK_ACCESS_TOKEN,
         "v": "5.131",
         "group_id": GROUP_ID
     }
 
-    number_loading_file = get_number()
+    number_loading_file = get_random_comics_number()
     comics_response_stuff = get_comics_response_stuff(number_loading_file)
-    download_image(comics_response_stuff, file_name)
+    download_image(comics_response_stuff["img"], FILE_NAME)
 
     try:
-        vk_upload_url = get_vk_upload_urL(vk_params)
-        save_params = upload_file(vk_upload_url, vk_params, file_name)
-        publishing_params = get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, save_params, comics_response_stuff)
+        vk_upload_url = get_vk_upload_urL(VK_PARAMS)
+        savewall_method_params = upload_file(vk_upload_url, VK_PARAMS, FILE_NAME)
+        publishing_params = get_publishing_params(VK_ACCESS_TOKEN, GROUP_ID, savewall_method_params, comics_response_stuff)
         publish_comics(publishing_params)
     except requests.HTTPError:
         pass
     finally:
-        os.remove(file_name)
+        os.remove(FILE_NAME)
 
 
 if __name__ == "__main__":
