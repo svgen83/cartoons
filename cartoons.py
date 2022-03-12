@@ -7,8 +7,8 @@ from random import randint
 from textwrap import dedent
 
 
-def download_image(url, file_name, params=None):
-    response = requests.get(url, params)
+def download_image(url, file_name):
+    response = requests.get(url)
     response.raise_for_status()
     with open(file_name, "wb") as file:
         file.write(response.content)
@@ -16,7 +16,7 @@ def download_image(url, file_name, params=None):
 
 def get_random_comics_number():
     url = "https://xkcd.com/info.0.json"
-    response = requests.get(url, params=None)
+    response = requests.get(url)
     response.raise_for_status()
     min_number = 1
     max_number = response.json()["num"]
@@ -25,7 +25,7 @@ def get_random_comics_number():
 
 def get_comics_response_stuff(number_loading_file):
     url = "https://xkcd.com/{}/info.0.json".format(number_loading_file)
-    response = requests.get(url, params=None)
+    response = requests.get(url)
     response.raise_for_status()
     return response.json()
 
@@ -34,11 +34,11 @@ def handle_vk_response(response):
     response.raise_for_status()
     response_stuff = response.json()
     if "error" in response_stuff:
-	error_msg = dedent(f"""\
-	error code:{response_stuff["error"]["error_code"]}.
-	{response_stuff["error"]["error_msg"]}""")
-	logging.error(error_msg)
-	raise requests.HTTPError
+	    error_msg = dedent(f"""\
+        error code:{response_stuff["error"]["error_code"]}.
+        {response_stuff["error"]["error_msg"]}""")
+        logging.error(error_msg)
+        raise requests.HTTPError
     return response_stuff
 
 
@@ -60,8 +60,8 @@ def upload_file(vk_upload_url, vk_params, file_name):
     return savewall_method_params
 
 
-def get_publishing_params(vk_access_token, group_id, savewall_method_params,
-			  comics_response_stuff):
+def get_publishing_params(vk_access_token, group_id,
+                          savewall_method_params, comics_response_stuff):
     vk_endpoint = "https://api.vk.com/method/photos.saveWallPhoto"
     response = requests.post(vk_endpoint, params=savewall_method_params)
     response.raise_for_status()
@@ -73,10 +73,10 @@ def get_publishing_params(vk_access_token, group_id, savewall_method_params,
     return {
             "access_token": vk_access_token,
             "v": "5.131",
-	    "owner_id": f"-{group_id}",
-	    "from_group": "1",
-	    "attachments": f"photo{owner_id}_{media_id}",
-	    "message": dedent(f"{title}\n{description}")}
+            "owner_id": f"-{group_id}",
+            "from_group": "1",
+            "attachments": f"photo{owner_id}_{media_id}",
+            "message": dedent(f"{title}\n{description}")}
 
 
 def publish_comics(publishing_params):
@@ -107,10 +107,10 @@ def main():
     try:
         vk_upload_url = get_vk_upload_url(vk_params)
         savewall_method_params = upload_file(vk_upload_url, vk_params,
-					     file_name)
+                                             file_name)
         publishing_params = get_publishing_params(vk_access_token, group_id,
-						  savewall_method_params,
-						  comics_response_stuff)
+                                                  savewall_method_params,
+                                                  comics_response_stuff)
         publish_comics(publishing_params)
     except requests.HTTPError:
         pass
@@ -120,3 +120,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
