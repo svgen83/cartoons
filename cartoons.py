@@ -35,7 +35,6 @@ def handle_vk_response(response):
     response_stuff = response.json()
     if "error" in response_stuff:
         error_msg = dedent(f"""\
-	    error_msg = dedent(f"""\
         error code:{response_stuff["error"]["error_code"]}.
         {response_stuff["error"]["error_msg"]}""")
         logging.error(error_msg)
